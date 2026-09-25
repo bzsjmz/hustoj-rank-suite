@@ -131,14 +131,14 @@ class ExporterTests(unittest.TestCase):
         from app.main import _due_lookup_prefixes
 
         prefixes = ("2023", "2024", "2025", "2026")
-        now = datetime.fromisoformat("2026-09-04T01:25:00+08:00")
+        now = datetime(2026, 9, 4, 1, 25).astimezone()
         self.assertEqual(("2023",), _due_lookup_prefixes(prefixes, "2026", {}, now))
         self.assertEqual(
             ("2024",),
             _due_lookup_prefixes(
                 prefixes,
                 "2026",
-                {"2023": "2026-09-04T00:25:00+08:00"},
+                {"2023": now.replace(hour=0, minute=25).isoformat()},
                 now,
             ),
         )

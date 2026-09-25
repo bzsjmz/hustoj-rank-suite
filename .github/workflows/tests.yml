@@ -16,17 +16,7 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - name: Backend tests
-        run: |
-          python - <<'PYTEST'
-          import sys
-          import unittest
-          suite = unittest.defaultTestLoader.discover('tests')
-          result = unittest.TextTestRunner(verbosity=2).run(suite)
-          for test, traceback in result.failures + result.errors:
-              message = (str(test) + '\n' + traceback).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
-              print('::error::' + message, flush=True)
-          sys.exit(not result.wasSuccessful())
-          PYTEST
+        run: python -B scripts/run_tests.py
       - run: python -m unittest discover -s tests -v
         working-directory: plugins/astrbot_plugin_oj_rank
       - run: python -B scripts/check_public_release.py --history

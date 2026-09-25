@@ -25,7 +25,7 @@ class PresentationConsistencyTests(unittest.TestCase):
             _, times = exporter.load_lookup_current_entries(('2023', '2024', '2025', '2026'))
             self.assertEqual({'2026'}, set(times))
             self.assertEqual(('2023',), _due_lookup_prefixes(('2023', '2024', '2025', '2026'), '2026', times,
-                                                          datetime.fromisoformat('2026-09-22T08:01:00+08:00')))
+                                                          datetime(2026, 9, 22, 8, 1).astimezone()))
             path = Path(directory) / 'lookup.json'
             payload = json.loads(path.read_text())
             del payload['prefix_fetched_at']
