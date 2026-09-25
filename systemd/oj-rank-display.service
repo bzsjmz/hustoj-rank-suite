@@ -1,0 +1,9 @@
+[Unit]
+Description=OJ Rank virtual X11 display
+PartOf=oj-rank.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/Xvfb :99 -screen 0 1365x768x24 -nolisten tcp -ac
+Restart=on-failure
+RestartSec=2

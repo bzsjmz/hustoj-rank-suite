@@ -1,0 +1,19 @@
+[Unit]
+Description=Verified daily OJ SQLite backup
+StartLimitIntervalSec=6h
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+WorkingDirectory=__PROJECT_ROOT__
+ExecStart=__PROJECT_ROOT__/.venv/bin/python -B -m app.scheduled_backup
+Nice=15
+IOSchedulingClass=idle
+CPUQuota=25%
+MemoryMax=192M
+IOReadBandwidthMax=__IO_DEVICE__ 8M
+IOWriteBandwidthMax=__IO_DEVICE__ 4M
+UMask=0077
+TimeoutStartSec=45min
+Restart=on-failure
+RestartSec=1h

@@ -1,0 +1,1 @@
+"""School OJ rank collector."""

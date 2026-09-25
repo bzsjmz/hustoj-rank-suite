@@ -1,0 +1,13 @@
+[Unit]
+Description=OJ Rank lightweight window manager
+Requires=oj-rank-display.service
+After=oj-rank-display.service
+PartOf=oj-rank.service
+
+[Service]
+Type=simple
+Environment=DISPLAY=:99
+ExecStartPre=/usr/bin/bash -c 'for i in {1..50}; do /usr/bin/xdpyinfo >/dev/null 2>&1 && exit 0; sleep 0.2; done; exit 1'
+ExecStart=/usr/bin/fluxbox
+Restart=on-failure
+RestartSec=2

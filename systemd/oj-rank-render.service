@@ -1,0 +1,31 @@
+[Unit]
+Description=OJ Rank independent on-demand image renderer
+After=local-fs.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PROJECT_ROOT__
+Environment=PYTHONUNBUFFERED=1
+Environment=PRE_RENDER_PAGES=3
+Environment=PLAYWRIGHT_BROWSERS_PATH=__PROJECT_ROOT__/data/ms-playwright
+EnvironmentFile=-__PROJECT_ROOT__/.env
+ExecStart=__PROJECT_ROOT__/.venv/bin/python -m app.render_service
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+KillMode=mixed
+UMask=0022
+Nice=10
+IOReadBandwidthMax=__IO_DEVICE__ 8M
+IOWriteBandwidthMax=__IO_DEVICE__ 3M
+IOSchedulingClass=idle
+IOAccounting=yes
+CPUAccounting=yes
+MemoryAccounting=yes
+CPUQuota=100%
+MemoryHigh=900M
+TasksMax=128
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

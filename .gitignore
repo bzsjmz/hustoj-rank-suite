@@ -1,0 +1,51 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+
+data/*
+!data/.gitkeep
+logs/*
+!logs/.gitkeep
+share/*
+!share/.gitkeep
+
+# Authentication state, runtime databases, exports, and diagnostics are private.
+**/webvpn-profile/
+**/webvpn-storage-state.json
+**/webvpn-session-status.json
+**/webvpn-session-events.jsonl
+**/.webvpn-diagnostics.key
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/statistics_exports/
+**/statistics_exports/**
+
+# Environment variants and accidental private working copies.
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.orig
+*.rej
+ops/backups/
+exports/
+private/
+**/webvpn-session-events.jsonl.*
+
+# Existing local tutorial material has not passed publication review.
+# Ignore does not remove tracked images or their history.
+plugins/astrbot_plugin_oj_rank/assets/pta_guide/
+plugins/astrbot_plugin_oj_rank/assets/oj_guide/teacher-*.jpg
+
+# Private database backups and restore verification receipts
+/backups/

@@ -1,0 +1,13 @@
+[Unit]
+Description=OJ Rank localhost-only noVNC bridge
+Requires=oj-rank-display.service
+After=oj-rank-display.service
+PartOf=oj-rank.service
+
+[Service]
+Type=simple
+Environment=DISPLAY=:99
+ExecStart=__PROJECT_ROOT__/scripts/start_novnc.sh
+Restart=on-failure
+RestartSec=2
+KillMode=control-group

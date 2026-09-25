@@ -1,0 +1,34 @@
+[Unit]
+Description=School OJ rank collector through persistent WebVPN Chromium
+Requires=oj-rank-display.service
+Wants=oj-rank-window-manager.service oj-rank-novnc.service
+After=network-online.target oj-rank-display.service oj-rank-window-manager.service
+
+[Service]
+Type=simple
+WorkingDirectory=__PROJECT_ROOT__
+Environment=DISPLAY=:99
+Environment=PYTHONUNBUFFERED=1
+Environment=PLAYWRIGHT_BROWSERS_PATH=__PROJECT_ROOT__/data/ms-playwright
+EnvironmentFile=-__PROJECT_ROOT__/.env
+ExecStart=__PROJECT_ROOT__/.venv/bin/python -m app.main
+Restart=always
+RestartSec=10
+TimeoutStopSec=90
+KillMode=mixed
+UMask=0077
+Nice=5
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+IOAccounting=yes
+CPUAccounting=yes
+MemoryAccounting=yes
+IOReadBandwidthMax=__IO_DEVICE__ 12M
+IOWriteBandwidthMax=__IO_DEVICE__ 6M
+IOWeight=50
+CPUQuota=150%
+MemoryHigh=1400M
+TasksMax=160
+
+[Install]
+WantedBy=multi-user.target

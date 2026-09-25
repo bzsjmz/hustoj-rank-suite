@@ -1,0 +1,25 @@
+[Unit]
+Description=OJ host bounded resource telemetry
+After=local-fs.target
+
+[Service]
+Type=simple
+Environment=OJ_RESOURCE_LOG_DIR=__PROJECT_ROOT__/logs
+WorkingDirectory=__PROJECT_ROOT__
+ExecStart=__PROJECT_ROOT__/.venv/bin/python -m app.resource_monitor
+Restart=on-failure
+RestartSec=30
+Nice=15
+IOSchedulingClass=idle
+CPUQuota=10%
+MemoryMax=96M
+IOReadBandwidthMax=__IO_DEVICE__ 1M
+IOWriteBandwidthMax=__IO_DEVICE__ 1M
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=__PROJECT_ROOT__/logs
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

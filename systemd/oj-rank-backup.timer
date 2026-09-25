@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily verified OJ backup schedule
+
+[Timer]
+OnCalendar=*-*-* 03:40:00 Asia/Shanghai
+RandomizedDelaySec=10min
+Persistent=false
+Unit=oj-rank-backup.service
+
+[Install]
+WantedBy=timers.target

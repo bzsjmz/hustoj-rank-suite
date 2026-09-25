@@ -1,0 +1,62 @@
+{
+  "default_limit": {
+    "description": "榜单默认显示人数",
+    "type": "int",
+    "hint": "使用 /榜单 时默认返回的人数。",
+    "default": 10
+  },
+  "max_limit": {
+    "description": "榜单单次最多显示人数",
+    "type": "int",
+    "hint": "限制 /榜单 数字 参数，硬上限为 50，建议不超过 20。",
+    "default": 20
+  },
+  "stale_after_minutes": {
+    "description": "数据延迟告警阈值（分钟）",
+    "type": "int",
+    "hint": "榜单超过此时间未更新时在回复中显示延迟提示。",
+    "default": 15
+  },
+  "render_timeout_seconds": {
+    "description": "按需图片渲染超时（秒）",
+    "type": "int",
+    "hint": "超过该时间会自动回退为文字榜单。",
+    "default": 90
+  },
+  "submission_timeout_seconds": {
+    "description": "提交记录查询超时（秒）",
+    "type": "int",
+    "hint": "等待采集进程串行查询 OJ 的最长时间，建议略高于服务端超时。",
+    "default": 95
+  },
+  "allowed_users": {
+    "description": "允许查询的 QQ 用户",
+    "type": "list",
+    "hint": "填写 QQ 号字符串；与群白名单均为空时允许所有会话。",
+    "default": [],
+    "items": {
+      "type": "string"
+    }
+  },
+  "allowed_groups": {
+    "description": "允许查询的 QQ 群",
+    "type": "list",
+    "hint": "填写群号字符串；用户或群命中任一白名单即可查询。",
+    "default": [],
+    "items": {
+      "type": "string"
+    }
+  },
+  "oj_campus_url": {
+    "description": "学校 OJ 校内入口",
+    "type": "string",
+    "hint": "仅填写公开入口，不包含登录票据、会话参数或凭据。",
+    "default": ""
+  },
+  "oj_webvpn_url": {
+    "description": "学校 OJ 校外/WebVPN 入口",
+    "type": "string",
+    "hint": "仅填写公开入口，不包含登录票据、会话参数或凭据。",
+    "default": ""
+  }
+}
