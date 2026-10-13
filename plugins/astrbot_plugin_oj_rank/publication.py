@@ -6,7 +6,7 @@ from pathlib import Path
 _root = ContextVar('oj_data_generation', default=None)
 FILES = {'latest.json', 'daily.json', 'lookup.json', 'academic-labels.json',
          'computer-college.json', 'software-college.json', 'class-intensity.json',
-         'major-intensity.json', 'weekly.json', 'monthly.json',
+         'major-intensity.json', 'weekly.json', 'monthly.json', 'historical-daily.json',
          'class-images/manifest.json', 'major-images/manifest.json'}
 
 
