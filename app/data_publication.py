@@ -9,7 +9,7 @@ import uuid
 
 REQUIRED = ('latest.json', 'latest.csv', 'lookup.json', 'academic-labels.json',
             'computer-college.json', 'software-college.json', 'class-intensity.json',
-            'major-intensity.json', 'weekly.json', 'monthly.json',
+            'major-intensity.json', 'weekly.json', 'monthly.json', 'historical-daily.json',
             'class-images/manifest.json', 'major-images/manifest.json')
 
 

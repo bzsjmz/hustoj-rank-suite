@@ -63,3 +63,7 @@ python3 -B scripts/check_public_release.py --history
 - [公开发布检查](docs/PUBLIC_RELEASE.md)
 
 SQLite、历史 gzip、当前数据版本和图片仍是不同提交边界。完整数据恢复需单独规划 DB/share 对齐，不能直接覆盖数据库。
+
+## 历史单日新增总榜
+
+新增 `/历史单日榜 [页码]`：按历史每个用户每天新增 AC 排名，同一人可多次上榜，支持图片分页与文字备用。历史快照自动回填；统计按北京时间，以零点前 30 分钟内快照为端点，仅纳入已结束且基准可靠的日期。详见 [统计口径与升级说明](docs/HISTORICAL_DAILY.md)。

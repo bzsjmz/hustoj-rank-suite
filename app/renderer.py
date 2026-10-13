@@ -153,8 +153,9 @@ class LeaderboardRenderer:
 
         first_rank = (page_number - 1) * self.page_size + 1
         last_rank = first_rank + len(entries) - 1
-        count_label = f"个{entity_type}" if entity_type else "名选手"
-        page_count_label = f"个{entity_type}" if entity_type else "人"
+        count_label = "条记录" if entity_type == "记录" else (f"个{entity_type}" if entity_type else "名选手")
+        page_count_label = "条记录" if entity_type == "记录" else (f"个{entity_type}" if entity_type else "人")
+        position_label = "记录序号 " if entity_type == "记录" else "排名 "
         return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -232,7 +233,7 @@ h1 {{ margin: 0; font-size: 52px; line-height: 1.12; letter-spacing: 3px; text-s
     {''.join(rows)}
   </section>
   <footer class="footer">
-    <div class="footer-left"><b>{("当前 ranklist " + str(total_users - len(historical_user_id_set)) + " 人｜历史补全 " + str(len(historical_user_id_set)) + " 人") if historical_user_id_set else ("排名 " + str(first_rank) + "–" + str(last_rank))}</b><br>{"蓝色姓名：历史上曾出现，但当前 ranklist 无法获取；成绩为最近一次历史记录。" if historical_user_id_set else ("使用 /翻页 " + str(page_number + 1 if page_number < page_count else 1) + " 查看" + ('下一页' if page_number < page_count else '第一页'))}</div>
+    <div class="footer-left"><b>{("当前 ranklist " + str(total_users - len(historical_user_id_set)) + " 人｜历史补全 " + str(len(historical_user_id_set)) + " 人") if historical_user_id_set else (position_label + str(first_rank) + "–" + str(last_rank))}</b><br>{"蓝色姓名：历史上曾出现，但当前 ranklist 无法获取；成绩为最近一次历史记录。" if historical_user_id_set else ("使用 /翻页 " + str(page_number + 1 if page_number < page_count else 1) + " 查看" + ('下一页' if page_number < page_count else '第一页'))}</div>
     <div class="page"><b>第 {page_number} / {page_count} 页</b><span>每页 {self.page_size} {page_count_label}</span></div>
   </footer>
 </main>

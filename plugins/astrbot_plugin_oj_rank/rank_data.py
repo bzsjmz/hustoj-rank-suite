@@ -47,6 +47,7 @@ ALLOWED_GROUP_COMMANDS = frozenset(
         "变化",
         "冲榜",
         "刷题榜",
+        "历史单日榜",
         "提交榜",
         "新星榜",
         "随机选手",
@@ -310,7 +311,39 @@ def _snapshot_from_payload(payload: Any, allow_empty: bool = False) -> RankSnaps
     if declared_count != len(normalized):
         raise RankDataError("榜单人数校验失败")
     current_user_ids = frozenset(str(row["user_id"]) for row in normalized)
-    if len(current_user_ids) != len(normalized):
+    if payload.get("board") == "historical-daily":
+        keys = set()
+        previous_gain = None
+        expected_rank = 0
+        for index, row in enumerate(normalized, 1):
+            try:
+                date = row["date"]
+                parsed = datetime.strptime(date, "%Y-%m-%d")
+                if parsed.strftime("%Y-%m-%d") != date:
+                    raise ValueError()
+                start = datetime.fromisoformat(row["start_at"])
+                end = datetime.fromisoformat(row["end_at"])
+                if start >= end:
+                    raise ValueError()
+                gain = row["accepted_change"]
+                if type(gain) is not int or gain <= 0 or row["accepted"] != gain:
+                    raise ValueError()
+                if previous_gain is not None and gain > previous_gain:
+                    raise ValueError()
+                if previous_gain != gain:
+                    expected_rank = index
+                if row["rank"] != expected_rank:
+                    raise ValueError()
+                previous_gain = gain
+                key = (row["user_id"], date)
+                if key in keys:
+                    raise ValueError()
+                keys.add(key)
+            except (KeyError, TypeError, ValueError):
+                raise RankDataError("历史单日榜记录无效") from None
+        if payload.get("record_count") != len(normalized):
+            raise RankDataError("历史单日榜记录数校验失败")
+    elif len(current_user_ids) != len(normalized):
         raise RankDataError("榜单存在重复学号")
 
     historical_roster = payload.get("historical_roster")

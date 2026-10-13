@@ -1,6 +1,6 @@
 # 当前数据整套发布协议
 
-采集端在 `share/.data-versions/.pending-*` 中生成主榜、查找缓存、学院榜、强度榜、周/月榜及班级/专业数据。校验必需文件、快照标识、数量和 registry 引用后，写入 publication.json、fsync，并原子替换相对符号链接 `share/current-data`。发布前失败保留上一套完整数据；SQLite 和历史 gzip/index 可能已经更新，诊断仍会报告它们之间的差异。
+采集端在 `share/.data-versions/.pending-*` 中生成主榜、查找缓存、学院榜、强度榜、周/月榜、历史单日新增总榜及班级/专业数据。校验必需文件、快照标识、数量和 registry 引用后，写入 publication.json、fsync，并原子替换相对符号链接 `share/current-data`。发布前失败保留上一套完整数据；SQLite 和历史 gzip/index 可能已经更新，诊断仍会报告它们之间的差异。
 
 AstrBot 每条命令固定解析一次数据目录；渲染任务固定其源数据路径。图片和历史统计文件保持原位置、各自的发布协议。旧路径通过符号链接兼容；旧工具自行连续读取多个旧路径，仍不保证固定同一代。首次完整发布前，消费者兼容原有 share 文件。
 

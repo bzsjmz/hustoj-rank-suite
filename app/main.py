@@ -20,6 +20,7 @@ from .college import (
 from .config import Settings
 from .crawler import BrowserUnavailable, CrawlError, RankCrawler, WebVPNSessionExpired
 from .database import RankDatabase
+from .daily_records import export_daily_records
 from .data_publication import DataPublication, current_data_root
 from .exporter import RankExporter
 from .resource_guard import PressureGuard, RetryBackoff, write_status
@@ -407,6 +408,10 @@ def run() -> int:
                                 "%s rank export failed; previous scoped export retained",
                                 label,
                             )
+                    export_daily_records(
+                        database, exporter, settings.prefix, fetched_at, snapshot_id,
+                        settings.excluded_user_ids, student_id_layout,
+                    )
                     publication.commit()
                     try:
                         publication.refresh_legacy_aliases()

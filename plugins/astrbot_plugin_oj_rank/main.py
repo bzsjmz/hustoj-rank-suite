@@ -51,6 +51,8 @@ PLUGIN_NAME = "astrbot_plugin_oj_rank"
 DATA_FILE = "/oj-rank-share/latest.json"
 LOOKUP_FILE = "/oj-rank-share/lookup.json"
 DAILY_FILE = "/oj-rank-share/daily.json"
+HISTORICAL_DAILY_FILE = "/oj-rank-share/historical-daily.json"
+HISTORICAL_DAILY_IMAGE_MANIFEST_FILE = "/oj-rank-share/historical-daily-images/manifest.json"
 WEEKLY_FILE = "/oj-rank-share/weekly.json"
 MONTHLY_FILE = "/oj-rank-share/monthly.json"
 WEEKLY_IMAGE_MANIFEST_FILE = "/oj-rank-share/weekly-images/manifest.json"
@@ -106,6 +108,7 @@ HELP_TEXT = """OJ 榜单帮助
 /变化 [学号或昵称]：今日整体或个人进展
 /冲榜 [人数]：今日名次提升榜
 /刷题榜 [人数]：今日新增通过题数榜
+/历史单日榜 [页码]：历史所有单日新增纪录总榜（同一人可多次上榜）
 /提交榜 [人数]：今日新增提交次数榜
 /新星榜 [人数]：今天从百名外冲出的同学
 
@@ -495,13 +498,19 @@ class OjRankPlugin(Star):
         start = (page_number - 1) * page_size
         rows = []
         for row in snapshot.users[start : start + page_size]:
-            text = format_user(row, compact=True)
+            if Path(snapshot_file).name == "historical-daily.json":
+                text = (f"{row['rank']}. {row['user_id']} {row['nickname'] or '未设置昵称'}｜"
+                        f"{row['date']}｜新增 {row['accepted_change']} 题｜"
+                        f"实际区间 {row['start_at']} → {row['end_at']}")
+            else:
+                text = format_user(row, compact=True)
             if row.get("is_historical"):
                 text += "｜当前 ranklist 暂未收录（历史记录）"
             rows.append(text)
         header = (
             f"OJ {title}文字版 第 {page_number}/{page_count} 页（{snapshot.prefix}）\n"
-            f"更新 {short_time(snapshot)}｜共 {snapshot.user_count} 人"
+            f"更新 {short_time(snapshot)}｜共 {snapshot.user_count} "
+            f"{'条记录（北京时间，已结束日期）' if Path(snapshot_file).name == 'historical-daily.json' else '人'}"
             f"{self._freshness(snapshot)}"
         )
         yield self._text_result(event, prefix + "\n".join([header, *rows]))
@@ -539,11 +548,24 @@ class OjRankPlugin(Star):
                 try:
                     manifest = self._load_images(manifest_file)
                 except RankDataError as exc:
-                    yield self._text_result(event, f"暂时无法查看{title}图片：{exc}")
-                    return
+                    if snapshot_file and Path(snapshot_file).name == "historical-daily.json":
+                        try:
+                            page_count = max(1, math.ceil(self._load_scoped(snapshot_file).user_count / 20))
+                        except RankDataError as source_exc:
+                            yield self._text_result(event, f"暂时无法查看{title}：{source_exc}")
+                            return
+                    else:
+                        yield self._text_result(event, f"暂时无法查看{title}图片：{exc}")
+                        return
+                else:
+                    page_count = manifest.page_count
                 page_number = previous + 1
-                if page_number > manifest.page_count:
+                if page_number > page_count:
                     page_number = 1
+            if snapshot_file and Path(snapshot_file).name == "historical-daily.json":
+                self._last_views[self._page_key(event)] = (
+                    manifest_file, snapshot_file, title, page_number, render_board, render_entity,
+                )
             async for result in self._leaderboard_image(
                 event, page_number, manifest_file, snapshot_file, title,
                 render_board, render_entity,
@@ -1072,6 +1094,25 @@ class OjRankPlugin(Star):
             f"{self._freshness(snapshot)}"
         )
         yield self._text_result(event, "\n".join([header, *rows]))
+
+    @filter.command("历史单日榜")
+    async def historical_daily(self, event: AstrMessageEvent, page_number: int = 1):
+        with data.pin_publication():
+            if not self._allowed(event):
+                yield self._text_result(event, "当前会话未获准查询榜单。")
+                return
+            if page_number < 1:
+                yield self._text_result(event, "页码必须从 1 开始，例如：/历史单日榜 2")
+                return
+            self._last_views[self._page_key(event)] = (
+                HISTORICAL_DAILY_IMAGE_MANIFEST_FILE, HISTORICAL_DAILY_FILE,
+                "历史单日新增总榜", page_number, "historical-daily", None,
+            )
+            async for result in self._leaderboard_image(
+                event, page_number, HISTORICAL_DAILY_IMAGE_MANIFEST_FILE,
+                HISTORICAL_DAILY_FILE, "历史单日新增总榜", "historical-daily",
+            ):
+                yield result
 
     @filter.command("周榜")
     async def weekly(self, event: AstrMessageEvent, page_number: int = 1):

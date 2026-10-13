@@ -11,7 +11,7 @@ from pathlib import Path
 
 PRODUCTS = ("latest.json", "daily.json", "lookup.json", "computer-college.json",
             "software-college.json", "class-intensity.json", "major-intensity.json",
-            "weekly.json", "monthly.json", "class-images/manifest.json",
+            "weekly.json", "monthly.json", "historical-daily.json", "class-images/manifest.json",
             "major-images/manifest.json")
 
 

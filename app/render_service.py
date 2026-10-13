@@ -169,6 +169,10 @@ class OnDemandRenderer:
             "software": BoardDefinition(
                 share / "software-college.json", "college-images/software", "软院榜单"
             ),
+            "historical-daily": BoardDefinition(
+                share / "historical-daily.json", "historical-daily-images", "历史单日新增总榜",
+                column_labels=("日期", "新增 AC", "学号 · 昵称"), entity_type="记录",
+            ),
             "weekly": BoardDefinition(share / "weekly.json", "weekly-images", "周榜"),
             "monthly": BoardDefinition(share / "monthly.json", "monthly-images", "月榜"),
             "class-intensity": BoardDefinition(
@@ -256,6 +260,11 @@ class OnDemandRenderer:
         definition = self.definition(request.board, request.entity)
         payload = self._load_payload(definition.source)
         entries, historical = self._entries(payload)
+        if request.board == "historical-daily":
+            entries = [RankEntry(int(row["rank"]), str(row["date"]),
+                                 f"{row['user_id']} · {row['nickname'] or '未设置昵称'}",
+                                 int(row["accepted_change"]), 0, 0, "")
+                       for row in payload["users"]]
         page_count = math.ceil(len(entries) / definition.page_size)
         if request.page < 1 or request.page > page_count:
             raise ValueError(f"页码超出范围（1-{page_count}）")
@@ -265,6 +274,8 @@ class OnDemandRenderer:
             else (request.page,)
         )
         subtitle = None
+        if request.board == "historical-daily":
+            subtitle = "北京时间 · 已结束日期 · 零点前快照差值（端点容差 30 分钟） · 同一人可多次上榜"
         if request.board == "class":
             subtitle = (
                 f"当前 ranklist {len(entries) - len(historical)} 人"
