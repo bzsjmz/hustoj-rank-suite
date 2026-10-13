@@ -189,6 +189,7 @@ class RankSnapshot:
     users: list[dict[str, Any]]
     historical_roster_user_ids: frozenset[str]
     prefix_fetched_at: dict[str, str] | None = None
+    history_status: str = "ready"
 
     @property
     def historical_user_count(self) -> int:
@@ -398,6 +399,7 @@ def _snapshot_from_payload(payload: Any, allow_empty: bool = False) -> RankSnaps
         users=normalized,
         historical_roster_user_ids=historical_roster_user_ids,
         prefix_fetched_at=cohort_times,
+        history_status=str(payload.get("history_status", "ready")),
     )
 
 

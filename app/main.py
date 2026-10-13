@@ -20,7 +20,7 @@ from .college import (
 from .config import Settings
 from .crawler import BrowserUnavailable, CrawlError, RankCrawler, WebVPNSessionExpired
 from .database import RankDatabase
-from .daily_records import export_daily_records
+from .daily_records import DailyRecordWorker, export_daily_records
 from .data_publication import DataPublication, current_data_root
 from .exporter import RankExporter
 from .resource_guard import PressureGuard, RetryBackoff, write_status
@@ -71,6 +71,7 @@ def run() -> int:
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
     crawler = RankCrawler(settings, logger)
+    daily_worker = DailyRecordWorker(settings.database_path, logger)
     submission_service = None
     state = "STARTING"
     guard = PressureGuard()
@@ -419,6 +420,7 @@ def run() -> int:
                     except OSError:
                         logger.warning("data generation committed; compatibility aliases or cache cleanup incomplete")
                     logger.info("complete data generation published, snapshot_id=%d", snapshot_id)
+                daily_worker.start(settings.prefix, fetched_at, snapshot_id)
                 crawler.persist_session_state()
                 process_submission_queries()
                 logger.info(
@@ -476,6 +478,7 @@ def run() -> int:
         logger.exception("collector stopped by an unrecoverable startup or authentication error")
         return 1
     finally:
+        daily_worker.close()
         if submission_service is not None:
             try:
                 submission_service.close()

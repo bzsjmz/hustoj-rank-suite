@@ -97,3 +97,34 @@ class DailyCommandTests(unittest.TestCase):
         self.assertEqual(2, plugin._last_views['fixture'][3])
         self.assertEqual(['ok'], asyncio.run(run()))
         self.assertEqual(1, calls[1][1])
+
+
+    def test_turn_page_ignores_stale_manifest_page_count(self):
+        import asyncio
+        from types import SimpleNamespace
+        method = self.method('turn_page', {})
+        calls = []
+        async def image(*args):
+            calls.append(args[1])
+            yield 'ok'
+        plugin = SimpleNamespace(_allowed=lambda _: True, _page_key=lambda _: 'fixture',
+            _last_views={'fixture': ('manifest', '/fixture/historical-daily.json', '榜', 1, 'historical-daily', None)},
+            _load_images=lambda _: SimpleNamespace(page_count=1, snapshot_id=1),
+            _load_scoped=lambda _: SimpleNamespace(user_count=21, snapshot_id=2),
+            _leaderboard_image=image, _text_result=lambda _, text: text)
+        async def run():
+            return [r async for r in method(plugin, object())]
+        self.assertEqual(['ok'], asyncio.run(run()))
+        self.assertEqual([2], calls)
+        self.assertEqual(['ok'], asyncio.run(run()))
+        self.assertEqual([2, 1], calls)
+
+    def test_unfinished_empty_history_is_labeled(self):
+        import asyncio
+        from types import SimpleNamespace
+        method = self.method('_leaderboard_text', {})
+        plugin = SimpleNamespace(_load_scoped=lambda _: SimpleNamespace(users=[], prefix='2026', history_status='updating'),
+                                 _text_result=lambda _, text: text)
+        async def run():
+            return [r async for r in method(plugin, object(), 1, snapshot_file='/fixture/historical-daily.json')]
+        self.assertIn('后台更新', asyncio.run(run())[0])

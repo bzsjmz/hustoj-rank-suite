@@ -276,6 +276,8 @@ class OnDemandRenderer:
         subtitle = None
         if request.board == "historical-daily":
             subtitle = "北京时间 · 已结束日期 · 零点前快照差值（端点容差 30 分钟） · 同一人可多次上榜"
+        if request.board == "historical-daily" and payload.get("history_status") == "updating":
+            subtitle += " · 后台统计更新中，仅展示已完成记录"
         if request.board == "class":
             subtitle = (
                 f"当前 ranklist {len(entries) - len(historical)} 人"

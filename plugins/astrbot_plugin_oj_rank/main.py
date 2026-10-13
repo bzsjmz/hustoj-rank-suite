@@ -122,7 +122,11 @@ HELP_TEXT = """OJ 榜单帮助
 如有建议或想法，请联系本系统管理员。"""
 
 CHANGELOG_TEXT = """OJ 榜单更新日志
-最近更新：2026-09-23
+最近更新：2026-10-13
+
+2026-10-13
+• 新增历史单日榜，后台逐日计算，未完成时标注统计进度
+• 修复旧时间格式兼容和图片不可用时的历史榜翻页
 
 2026-09-23
 • 新增 /提交记录，可按昵称、学号或初始昵称查看最近一页提交记录
@@ -487,8 +491,12 @@ class OjRankPlugin(Star):
         except RankDataError as exc:
             yield self._text_result(event, f"暂时无法查询{title}：{exc}")
             return
+        history_updating = (Path(snapshot_file).name == "historical-daily.json"
+                            and getattr(snapshot, "history_status", "ready") == "updating")
+        if history_updating:
+            prefix += "历史统计正在后台更新，当前仅展示已完成记录。\n"
         if not snapshot.users:
-            yield self._text_result(event, f"{snapshot.prefix} {title}目前还没有数据。")
+            yield self._text_result(event, prefix + f"{snapshot.prefix} {title}目前还没有数据。")
             return
         page_size = snapshot.user_count if Path(snapshot_file).parent == Path(CLASS_DATA_ROOT) else 20
         page_count = math.ceil(snapshot.user_count / page_size)
@@ -546,19 +554,13 @@ class OjRankPlugin(Star):
             )
             if page_number <= 0:
                 try:
-                    manifest = self._load_images(manifest_file)
-                except RankDataError as exc:
                     if snapshot_file and Path(snapshot_file).name == "historical-daily.json":
-                        try:
-                            page_count = max(1, math.ceil(self._load_scoped(snapshot_file).user_count / 20))
-                        except RankDataError as source_exc:
-                            yield self._text_result(event, f"暂时无法查看{title}：{source_exc}")
-                            return
+                        page_count = max(1, math.ceil(self._load_scoped(snapshot_file).user_count / 20))
                     else:
-                        yield self._text_result(event, f"暂时无法查看{title}图片：{exc}")
-                        return
-                else:
-                    page_count = manifest.page_count
+                        page_count = self._load_images(manifest_file).page_count
+                except RankDataError as exc:
+                    yield self._text_result(event, f"暂时无法查看{title}：{exc}")
+                    return
                 page_number = previous + 1
                 if page_number > page_count:
                     page_number = 1
